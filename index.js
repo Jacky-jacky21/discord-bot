@@ -1,6 +1,7 @@
 // 📦 Imports
 const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const dotenv = require('dotenv');
+const http = require('http');
 const { registerStatus } = require('./status.js');
 dotenv.config();
 
@@ -147,6 +148,15 @@ function buildEventEmbed(eventId) {
 }
 
 registerStatus(client);
+
+// Einfacher Webserver für Replit / UptimeRobot
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot is running\n');
+});
+server.listen(3000, () => {
+  console.log('Webserver läuft auf Port 3000');
+});
 
 // ✅ Client Login
 client.login(TOKEN);
