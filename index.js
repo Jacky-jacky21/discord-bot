@@ -1,7 +1,7 @@
 // 📦 Imports
-import { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
-import dotenv from 'dotenv';
-import { registerStatus } from './status.js';
+const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const dotenv = require('dotenv');
+const { registerStatus } = require('./status.js');
 dotenv.config();
 
 // ✅ Config

@@ -1,4 +1,4 @@
-export function registerStatus(client) {
+function registerStatus(client) {
   client.once('ready', () => {
     console.log(`✅ Bot ist online! Eingeloggt als ${client.user.tag}`);
     client.user.setPresence({
@@ -7,3 +7,5 @@ export function registerStatus(client) {
     });
   });
 }
+
+module.exports = { registerStatus };
