@@ -57,7 +57,6 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
 // 👇 Eventdaten
 const events = new Map();
 
-
 // 👇 Client Logic
 client.on('interactionCreate', async interaction => {
   if (interaction.isChatInputCommand() && interaction.commandName === 'anwesenheit') {
@@ -74,7 +73,7 @@ client.on('interactionCreate', async interaction => {
       description,
       signedUp: new Set(),
       signedOff: new Set(),
-      message: null // Hier werden später Message-Daten gespeichert
+      message: null
     });
 
     const embed = buildEventEmbed(eventId);
@@ -114,7 +113,6 @@ client.on('interactionCreate', async interaction => {
       await interaction.reply({ content: `❌ Du hast dich vom Event am ${eventData.date.toLocaleString()} abgemeldet!`, ephemeral: true });
     }
 
-    // 📋 Nach jeder Änderung den Embed updaten
     const updatedEmbed = buildEventEmbed(eventId);
     if (eventData.message) {
       await eventData.message.edit({ embeds: [updatedEmbed] });
