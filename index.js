@@ -41,17 +41,17 @@ const commands = [
         .setDescription('Format: YYYY-MM-DD HH:MM')
         .setRequired(true)
     )
-    .addNumberOption((option) =>
-      option
-        .setName('frist_in_minuten')
-        .setDescription('Wie viele Minuten bis zum Anmeldeschluss?')
-        .setRequired(true)
-    )
     .addStringOption((option) =>
       option
         .setName('beschreibung')
         .setDescription('Beschreibung des Events')
         .setRequired(true)
+    )
+    .addNumberOption((option) =>
+      option
+        .setName('frist_in_minuten')
+        .setDescription('Optional: Minuten bis Anmeldeschluss (Standard: 24h vorher)')
+        .setRequired(false)
     )
 ];
 
@@ -87,11 +87,26 @@ client.on('interactionCreate', async (interaction) => {
   // Slash Command "anwesenheit"
   if (interaction.isChatInputCommand() && interaction.commandName === 'anwesenheit') {
     const dateInput = interaction.options.getString('datum');
-    const deadlineMinutes = interaction.options.getNumber('frist_in_minuten');
     const description = interaction.options.getString('beschreibung');
-
     const eventDate = new Date(dateInput);
-    const deadline = new Date(Date.now() + deadlineMinutes * 60 * 1000);
+
+    // Hole optionalen Fristwert
+    const deadlineMinutes = interaction.options.getNumber('frist_in_minuten');
+    let deadline;
+
+    if (deadlineMinutes !== null && !isNaN(deadlineMinutes)) {
+      deadline = new Date(Date.now() + deadlineMinutes * 60 * 1000);
+    } else {
+      deadline = new Date(eventDate.getTime() - 24 * 60 * 60 * 1000); // 24h vorher
+    }
+
+    if (deadline >= eventDate) {
+      return interaction.reply({
+        content: '❌ Die Anmeldefrist muss **vor** dem Event liegen.',
+        ephemeral: true
+      });
+    }
+
     const eventId = interaction.id;
 
     events.set(eventId, {
@@ -122,7 +137,7 @@ client.on('interactionCreate', async (interaction) => {
     });
 
     events.get(eventId).message = reply;
-    return; // hier aufhören; rest nur für Button-Interactions
+    return;
   }
 
   // Button Interaktionen
