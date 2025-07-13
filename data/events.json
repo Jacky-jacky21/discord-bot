@@ -1,0 +1,244 @@
+{
+  "1394058067569545357": {
+    "date": "2025-01-01T00:00:00.000Z",
+    "deadline": "2024-12-31T00:00:00.000Z",
+    "description": "qed74",
+    "signedUp": [],
+    "signedOff": [],
+    "message": null
+  },
+  "1394060230043893921": {
+    "date": "2025-07-22T20:11:00.000Z",
+    "deadline": "2025-07-21T20:11:00.000Z",
+    "description": "qwd",
+    "signedUp": [],
+    "signedOff": [],
+    "message": null
+  },
+  "1394065627404046346": {
+    "date": "2025-08-13T11:12:00.000Z",
+    "deadline": "2025-08-12T11:12:00.000Z",
+    "description": "edqw",
+    "signedUp": [],
+    "signedOff": [
+      "jacky_jacky21"
+    ],
+    "message": {
+      "channelId": "1334104178955522113",
+      "guildId": "1334104178955522110",
+      "id": "1394065628624588841",
+      "createdTimestamp": 1752441546351,
+      "type": 20,
+      "system": false,
+      "content": "",
+      "authorId": "1387123249061691463",
+      "pinned": false,
+      "tts": false,
+      "nonce": null,
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "📢 Anwesenheitsabfrage für Event am 13.08.2025, 13:12 Uhr",
+          "id": "1394065630759747744",
+          "fields": [
+            {
+              "value": "Keine Anmeldungen",
+              "name": "✅ Angemeldet (0)",
+              "inline": true
+            },
+            {
+              "value": "Keine Abmeldungen",
+              "name": "❌ Abgemeldet (0)",
+              "inline": true
+            }
+          ],
+          "description": "edqw\nAnmeldung bis: 12.08.2025, 13:12 Uhr",
+          "content_scan_version": 0,
+          "color": 31743
+        }
+      ],
+      "components": [
+        {
+          "type": 1,
+          "id": 1,
+          "components": [
+            {
+              "type": 2,
+              "style": 3,
+              "label": "Anmelden",
+              "id": 2,
+              "custom_id": "signup_1394065627404046346"
+            },
+            {
+              "type": 2,
+              "style": 4,
+              "label": "Abmelden",
+              "id": 3,
+              "custom_id": "signoff_1394065627404046346"
+            }
+          ]
+        }
+      ],
+      "attachments": [],
+      "stickers": [],
+      "position": 0,
+      "roleSubscriptionData": null,
+      "resolved": {
+        "members": [],
+        "users": [],
+        "roles": [],
+        "channels": []
+      },
+      "editedTimestamp": null,
+      "mentions": {
+        "everyone": false,
+        "users": [],
+        "roles": [],
+        "crosspostedChannels": [],
+        "repliedUser": null,
+        "members": [],
+        "channels": []
+      },
+      "webhookId": "1387123249061691463",
+      "groupActivityApplicationId": null,
+      "applicationId": "1387123249061691463",
+      "activity": null,
+      "flags": 64,
+      "reference": null,
+      "interactionMetadata": {
+        "id": "1394065627404046346",
+        "type": 2,
+        "user": "965196613490466826",
+        "authorizingIntegrationOwners": {
+          "0": "1334104178955522110"
+        },
+        "originalResponseMessageId": null,
+        "interactedMessageId": null,
+        "triggeringInteractionMetadata": null
+      },
+      "interaction": {
+        "id": "1394065627404046346",
+        "type": 2,
+        "commandName": "anwesenheit",
+        "user": "965196613490466826"
+      },
+      "poll": null,
+      "messageSnapshots": [],
+      "call": null,
+      "cleanContent": ""
+    }
+  },
+  "1394066596044996610": {
+    "date": "2025-08-13T11:12:00.000Z",
+    "deadline": "2025-07-13T21:23:57.928Z",
+    "description": "qdwqdw",
+    "signedUp": [],
+    "signedOff": [
+      "jacky_jacky21"
+    ],
+    "message": {
+      "channelId": "1334104178955522113",
+      "guildId": "1334104178955522110",
+      "id": "1394066597487837267",
+      "createdTimestamp": 1752441777346,
+      "type": 20,
+      "system": false,
+      "content": "",
+      "authorId": "1387123249061691463",
+      "pinned": false,
+      "tts": false,
+      "nonce": null,
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "📢 Anwesenheitsabfrage für Event am 13.08.2025, 13:12 Uhr",
+          "id": "1394066598742196325",
+          "fields": [
+            {
+              "value": "Keine Anmeldungen",
+              "name": "✅ Angemeldet (0)",
+              "inline": true
+            },
+            {
+              "value": "Keine Abmeldungen",
+              "name": "❌ Abgemeldet (0)",
+              "inline": true
+            }
+          ],
+          "description": "qdwqdw\nAnmeldung bis: 13.07.2025, 23:23 Uhr",
+          "content_scan_version": 0,
+          "color": 31743
+        }
+      ],
+      "components": [
+        {
+          "type": 1,
+          "id": 1,
+          "components": [
+            {
+              "type": 2,
+              "style": 3,
+              "label": "Anmelden",
+              "id": 2,
+              "custom_id": "signup_1394066596044996610"
+            },
+            {
+              "type": 2,
+              "style": 4,
+              "label": "Abmelden",
+              "id": 3,
+              "custom_id": "signoff_1394066596044996610"
+            }
+          ]
+        }
+      ],
+      "attachments": [],
+      "stickers": [],
+      "position": 0,
+      "roleSubscriptionData": null,
+      "resolved": {
+        "members": [],
+        "users": [],
+        "roles": [],
+        "channels": []
+      },
+      "editedTimestamp": null,
+      "mentions": {
+        "everyone": false,
+        "users": [],
+        "roles": [],
+        "crosspostedChannels": [],
+        "repliedUser": null,
+        "members": [],
+        "channels": []
+      },
+      "webhookId": "1387123249061691463",
+      "groupActivityApplicationId": null,
+      "applicationId": "1387123249061691463",
+      "activity": null,
+      "flags": 64,
+      "reference": null,
+      "interactionMetadata": {
+        "id": "1394066596044996610",
+        "type": 2,
+        "user": "965196613490466826",
+        "authorizingIntegrationOwners": {
+          "0": "1334104178955522110"
+        },
+        "originalResponseMessageId": null,
+        "interactedMessageId": null,
+        "triggeringInteractionMetadata": null
+      },
+      "interaction": {
+        "id": "1394066596044996610",
+        "type": 2,
+        "commandName": "anwesenheit",
+        "user": "965196613490466826"
+      },
+      "poll": null,
+      "messageSnapshots": [],
+      "call": null,
+      "cleanContent": ""
+    }
+  }
+}
