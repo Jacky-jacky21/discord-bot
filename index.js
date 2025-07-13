@@ -10,7 +10,7 @@ const {
   ButtonStyle,
   EmbedBuilder,
   ChannelType,
-  MessageFlags // <--- NEU: Für MessageFlags.Ephemeral
+  MessageFlags
 } = require('discord.js');
 const dotenv = require('dotenv');
 const fs = require('fs');
@@ -73,8 +73,8 @@ function saveEventsToFile() {
       description: event.description,
       signedUp: Array.from(event.signedUp),
       signedOff: Array.from(event.signedOff),
-      messageId: event.messageId || null, // Stelle sicher, dass dies existiert
-      channelId: event.channelId || null // Stelle sicher, dass dies existiert
+      messageId: event.messageId || null,
+      channelId: event.channelId || null
     };
   }
   fs.writeFileSync(EVENTS_FILE, JSON.stringify(obj, null, 2));
@@ -135,8 +135,7 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
 client.on('interactionCreate', async (interaction) => {
   // Slash Command "anwesenheit"
   if (interaction.isChatInputCommand() && interaction.commandName === 'anwesenheit') {
-    // deferReply mit Flags für Ephemeral
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // <--- GEÄNDERT
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const dateInput = interaction.options.getString('datum');
     const description = interaction.options.getString('beschreibung');
@@ -205,7 +204,6 @@ client.on('interactionCreate', async (interaction) => {
 
     const eventId = interaction.id;
 
-    // Erstelle Embed mit temporären Daten, bevor das Event in der Map gespeichert wird
     const embed = buildEventEmbed(eventId, eventDate, deadline, description, new Set(), new Set());
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
@@ -218,11 +216,10 @@ client.on('interactionCreate', async (interaction) => {
         .setStyle(ButtonStyle.Danger)
     );
 
-    // editReply, um die vorherige deferReply zu bearbeiten
     const reply = await interaction.editReply({
       embeds: [embed],
       components: [row],
-      fetchReply: true // <--- Weiterhin fetchReply nutzen, um das Message-Objekt zu bekommen
+      fetchReply: true
     });
 
     events.set(eventId, {
@@ -240,15 +237,13 @@ client.on('interactionCreate', async (interaction) => {
 
   // Button Interaktionen
   if (interaction.isButton()) {
-    // Zuerst deferUpdate, um die Interaktion zu bestätigen
-    await interaction.deferUpdate(); // <--- NEU: Dies verhindert "Unknown interaction" und "already acknowledged"
+    await interaction.deferUpdate();
 
     const [action, eventId] = interaction.customId.split('_');
     const eventData = events.get(eventId);
 
     if (!eventData) {
-      // Nutze followUp, da deferUpdate bereits erfolgt ist
-      return interaction.followUp({ content: 'Event nicht gefunden. (Event wurde möglicherweise gelöscht oder der Bot wurde neu gestartet und die Daten sind verloren gegangen)', flags: MessageFlags.Ephemeral }); // <--- GEÄNDERT
+      return interaction.followUp({ content: 'Event nicht gefunden. (Event wurde möglicherweise gelöscht oder der Bot wurde neu gestartet und die Daten sind verloren gegangen)', flags: MessageFlags.Ephemeral });
     }
 
     const username = interaction.user.username;
@@ -267,31 +262,27 @@ client.on('interactionCreate', async (interaction) => {
     if (action === 'signup') {
       eventData.signedUp.add(username);
       eventData.signedOff.delete(username);
-      // Nutze followUp nach deferUpdate
       await interaction.followUp({
         content: `✅ Du hast dich für das Event am ${formatDateTime(eventData.date)} angemeldet!`,
-        flags: MessageFlags.Ephemeral // <--- GEÄNDERT
+        flags: MessageFlags.Ephemeral
       });
     } else if (action === 'signoff') {
       eventData.signedOff.add(username);
       eventData.signedUp.delete(username);
-      // Nutze followUp nach deferUpdate
       await interaction.followUp({
         content: `❌ Du hast dich vom Event am ${formatDateTime(eventData.date)} abgemeldet!`,
-        flags: MessageFlags.Ephemeral // <--- GEÄNDERT
+        flags: MessageFlags.Ephemeral
       });
     }
 
     saveEventsToFile();
 
-    // Embed updaten: Message neu vom Cache holen und dann bearbeiten
     if (eventData.channelId && eventData.messageId) {
       try {
         const channel = client.channels.cache.get(eventData.channelId);
         if (channel && channel.type === ChannelType.GuildText) {
           const message = await channel.messages.fetch(eventData.messageId);
-          // Hole die aktuellsten Daten für das Embed aus der Map
-          const currentEventData = events.get(eventId); // Sicherstellen, dass die aktuellsten Daten verwendet werden
+          const currentEventData = events.get(eventId);
           const updatedEmbed = buildEventEmbed(
             eventId,
             currentEventData.date,
@@ -306,20 +297,17 @@ client.on('interactionCreate', async (interaction) => {
         }
       } catch (error) {
         console.error(`Fehler beim Aktualisieren der Nachricht ${eventData.messageId}:`, error);
-        // Optional: Benutzer benachrichtigen, dass Update fehlgeschlagen ist
-        await interaction.followUp({ content: '❌ Fehler beim Aktualisieren der Anwesenheitsliste.', flags: MessageFlags.Ephemeral }); // <--- GEÄNDERT
+        await interaction.followUp({ content: '❌ Fehler beim Aktualisieren der Anwesenheitsliste.', flags: MessageFlags.Ephemeral });
       }
     } else {
       console.warn(`Warnung: messageId oder channelId für Event ${eventId} fehlt, kann Embed nicht aktualisieren.`);
-      await interaction.followUp({ content: '⚠️  Kann Anwesenheitsliste nicht aktualisieren (Nachrichtendaten fehlen).', flags: MessageFlags.Ephemeral }); // <--- GEÄNDERT
+      await interaction.followUp({ content: '⚠️  Kann Anwesenheitsliste nicht aktualisieren (Nachrichtendaten fehlen).', flags: MessageFlags.Ephemeral });
     }
   }
 });
 
-// Fügt eine führende Null hinzu, wenn die Zahl einstellig ist
 const addLeadingZero = (num) => num < 10 ? '0' + num : num;
 
-// 🛠 Hilfsfunktion zum Bauen des Embeds & Datumsformatierung
 function formatDateTime(date) {
   if (isNaN(date.getTime())) {
     return "Ungültiges Datum/Zeit";
@@ -331,12 +319,10 @@ function formatDateTime(date) {
   const hours = addLeadingZero(date.getHours());
   const minutes = addLeadingZero(date.getMinutes());
 
-  // Manuelles Format, um AM/PM zu vermeiden
   return `${day}.${month}.${year}, ${hours}:${minutes} Uhr`;
 }
 
-function buildEventEmbed(eventId, date, deadline, description, signedUp, signedOff) {
-  // Hier keine Abfrage von events.get(eventId) mehr, da Daten direkt übergeben werden
+function buildEventEmbed(eventId, date, deadline, description, signedUp, signedOff) { // <-- HIER IST `signedOff` (kleines 'o')!
   return new EmbedBuilder()
     .setTitle(`📢 Anwesenheitsabfrage für Event am ${formatDateTime(date)}`)
     .setDescription(
@@ -349,8 +335,8 @@ function buildEventEmbed(eventId, date, deadline, description, signedUp, signedO
         inline: true
       },
       {
-        name: `❌ Abgemeldet (${signedOff.size})`,
-        value: signoffs.size > 0 ? Array.from(signedOff).join('\n') : 'Keine Abmeldungen',
+        name: `❌ Abgemeldet (${signedOff.size})`, // <--- HIER KORRIGIERT: `signedOff` statt `signoffs`
+        value: signedOff.size > 0 ? Array.from(signedOff).join('\n') : 'Keine Abmeldungen',
         inline: true
       }
     )
@@ -359,10 +345,7 @@ function buildEventEmbed(eventId, date, deadline, description, signedUp, signedO
 
 registerStatus(client);
 
-// ────────────────────────────────────────────────
-// 🌡 Health‑Check‑Server (Render Free Tier + UptimeRobot)
-// ────────────────────────────────────────────────
-const PORT = process.env.PORT || 10000; // <--- PORT auf 10000 gesetzt, da Render das erwartet
+const PORT = process.env.PORT || 10000;
 
 const server = http.createServer((req, res) => {
   if (req.url === '/healthz') {
