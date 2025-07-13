@@ -240,5 +240,118 @@
       "call": null,
       "cleanContent": ""
     }
+  },
+  "1394069639776174120": {
+    "date": "2025-07-14T21:55:00.000Z",
+    "deadline": "2025-07-13T21:37:03.569Z",
+    "description": "test",
+    "signedUp": [],
+    "signedOff": [
+      "jacky_jacky21"
+    ],
+    "message": {
+      "channelId": "1353116891543244931",
+      "guildId": "1319637944176345138",
+      "id": "1394069640954773635",
+      "createdTimestamp": 1752442502965,
+      "type": 20,
+      "system": false,
+      "content": "",
+      "authorId": "1387123249061691463",
+      "pinned": false,
+      "tts": false,
+      "nonce": null,
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "📢 Anwesenheitsabfrage für Event am 14.07.2025, 23:55 Uhr",
+          "id": "1394069642380709888",
+          "fields": [
+            {
+              "value": "Keine Anmeldungen",
+              "name": "✅ Angemeldet (0)",
+              "inline": true
+            },
+            {
+              "value": "Keine Abmeldungen",
+              "name": "❌ Abgemeldet (0)",
+              "inline": true
+            }
+          ],
+          "description": "test\nAnmeldung möglich bis: 13.07.2025, 23:37 Uhr",
+          "content_scan_version": 0,
+          "color": 31743
+        }
+      ],
+      "components": [
+        {
+          "type": 1,
+          "id": 1,
+          "components": [
+            {
+              "type": 2,
+              "style": 3,
+              "label": "Anmelden",
+              "id": 2,
+              "custom_id": "signup_1394069639776174120"
+            },
+            {
+              "type": 2,
+              "style": 4,
+              "label": "Abmelden",
+              "id": 3,
+              "custom_id": "signoff_1394069639776174120"
+            }
+          ]
+        }
+      ],
+      "attachments": [],
+      "stickers": [],
+      "position": 0,
+      "roleSubscriptionData": null,
+      "resolved": {
+        "members": [],
+        "users": [],
+        "roles": [],
+        "channels": []
+      },
+      "editedTimestamp": null,
+      "mentions": {
+        "everyone": false,
+        "users": [],
+        "roles": [],
+        "crosspostedChannels": [],
+        "repliedUser": null,
+        "members": [],
+        "channels": []
+      },
+      "webhookId": "1387123249061691463",
+      "groupActivityApplicationId": null,
+      "applicationId": "1387123249061691463",
+      "activity": null,
+      "flags": 64,
+      "reference": null,
+      "interactionMetadata": {
+        "id": "1394069639776174120",
+        "type": 2,
+        "user": "965196613490466826",
+        "authorizingIntegrationOwners": {
+          "0": "1319637944176345138"
+        },
+        "originalResponseMessageId": null,
+        "interactedMessageId": null,
+        "triggeringInteractionMetadata": null
+      },
+      "interaction": {
+        "id": "1394069639776174120",
+        "type": 2,
+        "commandName": "anwesenheit",
+        "user": "965196613490466826"
+      },
+      "poll": null,
+      "messageSnapshots": [],
+      "call": null,
+      "cleanContent": ""
+    }
   }
 }
