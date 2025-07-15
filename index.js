@@ -44,8 +44,14 @@ const commands = [
     .addStringOption((option) =>
       option
         .setName('beschreibung')
-        .setDescription('Beschreibung des Events')
+        .setDescription('Beschreibung des Events (inkl. Uhrzeit, falls nötig)')
         .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName('titel')
+        .setDescription('Optional: Titel der Anwesenheitsabfrage')
+        .setRequired(false)
     )
     .addNumberOption((option) =>
       option
@@ -88,16 +94,16 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.isChatInputCommand() && interaction.commandName === 'anwesenheit') {
     const dateInput = interaction.options.getString('datum');
     const description = interaction.options.getString('beschreibung');
+    const customTitle = interaction.options.getString('titel') || '📢 Anwesenheitsabfrage';
     const eventDate = new Date(dateInput);
 
-    // Hole optionalen Fristwert
     const deadlineMinutes = interaction.options.getNumber('frist_in_minuten');
     let deadline;
 
     if (deadlineMinutes !== null && !isNaN(deadlineMinutes)) {
       deadline = new Date(Date.now() + deadlineMinutes * 60 * 1000);
     } else {
-      deadline = new Date(eventDate.getTime() - 24 * 60 * 60 * 1000); // 24h vorher
+      deadline = new Date(eventDate.getTime() - 24 * 60 * 60 * 1000);
     }
 
     if (deadline >= eventDate) {
@@ -113,6 +119,7 @@ client.on('interactionCreate', async (interaction) => {
       date: eventDate,
       deadline,
       description,
+      title: customTitle,
       signedUp: new Set(),
       signedOff: new Set(),
       message: null
@@ -151,14 +158,14 @@ client.on('interactionCreate', async (interaction) => {
 
     const username = interaction.user.username;
 
-    // Nach-Frist-Logging
+    // Nur Logging wenn Frist überschritten
     if (new Date() > eventData.deadline && LOG_CHANNEL_ID) {
       const logChannel = interaction.client.channels.cache.get(LOG_CHANNEL_ID);
       if (logChannel) {
         await logChannel.send(
           `${username} hat sich **nach Frist** ${
             action === 'signup' ? 'angemeldet' : 'abgemeldet'
-          } für ${eventData.date.toLocaleString()}.`
+          } (Event: "${eventData.title}").`
         );
       }
     }
@@ -167,19 +174,18 @@ client.on('interactionCreate', async (interaction) => {
       eventData.signedUp.add(username);
       eventData.signedOff.delete(username);
       await interaction.reply({
-        content: `✅ Du hast dich für das Event am ${eventData.date.toLocaleString()} angemeldet!`,
+        content: `✅ Du hast dich für das Event angemeldet!`,
         ephemeral: true
       });
     } else if (action === 'signoff') {
       eventData.signedOff.add(username);
       eventData.signedUp.delete(username);
       await interaction.reply({
-        content: `❌ Du hast dich vom Event am ${eventData.date.toLocaleString()} abgemeldet!`,
+        content: `❌ Du hast dich vom Event abgemeldet!`,
         ephemeral: true
       });
     }
 
-    // Embed updaten
     const updatedEmbed = buildEventEmbed(eventId);
     if (eventData.message) {
       await eventData.message.edit({ embeds: [updatedEmbed] });
@@ -196,10 +202,8 @@ function buildEventEmbed(eventId) {
   const signoffs = Array.from(eventData.signedOff);
 
   return new EmbedBuilder()
-    .setTitle(`📢 Anwesenheitsabfrage für Event am ${eventData.date.toLocaleString()}`)
-    .setDescription(
-      `${eventData.description}\nAnmeldung möglich bis: ${eventData.deadline.toLocaleString()}`
-    )
+    .setTitle(eventData.title)
+    .setDescription(eventData.description)
     .addFields(
       {
         name: `✅ Angemeldet (${signups.length})`,
@@ -219,7 +223,7 @@ function buildEventEmbed(eventId) {
 registerStatus(client);
 
 // ────────────────────────────────────────────────
-// 🌡 Health‑Check‑Server (Render Free Tier + UptimeRobot)
+// 🌡 Health‑Check‑Server
 // ────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 
