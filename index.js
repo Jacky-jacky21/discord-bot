@@ -8,7 +8,8 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  EmbedBuilder
+  EmbedBuilder,
+  MessageFlags
 } = require('discord.js');
 const dotenv = require('dotenv');
 const http = require('http');
@@ -90,117 +91,110 @@ const events = new Map();
 
 // 👇 Client Logic
 client.on('interactionCreate', async (interaction) => {
-// Slash Command "anwesenheit"
-  if (interaction.isChatInputCommand() && interaction.commandName === 'anwesenheit') {
-    // Defer the reply immediately. This tells Discord "I'm working on it"
-    await interaction.deferReply({ ephemeral: true }); // You can choose to make the defer ephemeral or not
+  // Slash Command "anwesenheit"
+  if (interaction.isChatInputCommand() && interaction.commandName === 'anwesenheit') {
+    // Update DIESE ZEILE
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // Oder direkt: { flags: 64 }
 
-    const dateInput = interaction.options.getString('datum');
-    const description = interaction.options.getString('beschreibung');
-    const customTitle = interaction.options.getString('titel') || '📢 Anwesenheitsabfrage';
-    const eventDate = new Date(dateInput);
+    const dateInput = interaction.options.getString('datum');
+    const description = interaction.options.getString('beschreibung');
+    const customTitle = interaction.options.getString('titel') || '📢 Anwesenheitsabfrage';
+    const eventDate = new Date(dateInput);
 
-    const deadlineMinutes = interaction.options.getNumber('frist_in_minuten');
-    let deadline;
+    const deadlineMinutes = interaction.options.getNumber('frist_in_minuten');
+    let deadline;
 
-    if (deadlineMinutes !== null && !isNaN(deadlineMinutes)) {
-      deadline = new Date(Date.now() + deadlineMinutes * 60 * 1000);
-    } else {
-      deadline = new Date(eventDate.getTime() - 24 * 60 * 60 * 1000);
-    }
+    if (deadlineMinutes !== null && !isNaN(deadlineMinutes)) {
+      deadline = new Date(Date.now() + deadlineMinutes * 60 * 1000);
+    } else {
+      deadline = new Date(eventDate.getTime() - 24 * 60 * 60 * 1000);
+    }
 
-    if (deadline >= eventDate) {
-      // If validation fails, edit the deferred reply to show the error
-      return interaction.editReply({
-        content: '❌ Die Anmeldefrist muss **vor** dem Event liegen.',
-        ephemeral: true // Ensure this remains ephemeral if the defer was
-      });
-    }
+    if (deadline >= eventDate) {
+      // Update DIESEN AUFRUF
+      return interaction.editReply({
+        content: '❌ Die Anmeldefrist muss **vor** dem Event liegen.',
+        flags: MessageFlags.Ephemeral // Oder direkt: { flags: 64 }
+      });
+    }
 
-    const eventId = interaction.id;
+    const eventId = interaction.id;
 
-    events.set(eventId, {
-      date: eventDate,
-      deadline,
-      description,
-      title: customTitle,
-      signedUp: new Set(),
-      signedOff: new Set(),
-      message: null
-    });
+    events.set(eventId, {
+      date: eventDate,
+      deadline,
+      description,
+      title: customTitle,
+      signedUp: new Set(),
+      signedOff: new Set(),
+      message: null
+    });
 
-    const embed = buildEventEmbed(eventId);
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId(`signup_${eventId}`)
-        .setLabel('Anmelden')
-        .setStyle(ButtonStyle.Success),
-      new ButtonBuilder()
-        .setCustomId(`signoff_${eventId}`)
-        .setLabel('Abmelden')
-        .setStyle(ButtonStyle.Danger)
-    );
+    const embed = buildEventEmbed(eventId);
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`signup_${eventId}`)
+        .setLabel('Anmelden')
+        .setStyle(ButtonStyle.Success),
+      new ButtonBuilder()
+        .setCustomId(`signoff_${eventId}`)
+        .setLabel('Abmelden')
+        .setStyle(ButtonStyle.Danger)
+    );
 
-    // After successful processing, edit the deferred reply to show the actual content
-    const reply = await interaction.editReply({
-      embeds: [embed],
-      components: [row],
-      ephemeral: false // The final message should likely be visible to everyone
-    });
+    const reply = await interaction.editReply({
+      embeds: [embed],
+      components: [row],
+      // Remove `ephemeral: false` here, as it's the default and not needed for public replies
+    });
 
-    events.get(eventId).message = reply;
-    return;
-  }
+    events.get(eventId).message = reply;
+    return;
+  }
 
-  // Button Interaktionen
-  if (interaction.isButton()) {
-    const [action, eventId] = interaction.customId.split('_');
-    const eventData = events.get(eventId);
+  // ... Button Interaktionen
+  if (interaction.isButton()) {
+    const [action, eventId] = interaction.customId.split('_');
+    const eventData = events.get(eventId);
 
-    if (!eventData) {
-      return interaction.reply({ content: 'Event nicht gefunden.', ephemeral: true });
-    }
+    if (!eventData) {
+      return interaction.reply({ content: 'Event nicht gefunden.', flags: MessageFlags.Ephemeral });
+    }
 
-    const username = interaction.user.username;
+    const username = interaction.user.username;
 
-    // Defer button interaction reply as well if processing might take time, or if you plan to edit later.
-    // For simple responses like this, an immediate ephemeral reply is often fine.
-    // await interaction.deferUpdate(); // Use deferUpdate for button interactions if you won't send a new message
+    if (new Date() > eventData.deadline && LOG_CHANNEL_ID) {
+      const logChannel = interaction.client.channels.cache.get(LOG_CHANNEL_ID);
+      if (logChannel) {
+        await logChannel.send(
+          `${username} hat sich **nach Frist** ${
+            action === 'signup' ? 'angemeldet' : 'abgemeldet'
+          } (Event: "${eventData.title}").`
+        );
+      }
+    }
 
-    // Only Logging if deadline exceeded
-    if (new Date() > eventData.deadline && LOG_CHANNEL_ID) {
-      const logChannel = interaction.client.channels.cache.get(LOG_CHANNEL_ID);
-      if (logChannel) {
-        await logChannel.send(
-          `${username} hat sich **nach Frist** ${
-            action === 'signup' ? 'angemeldet' : 'abgemeldet'
-          } (Event: "${eventData.title}").`
-        );
-      }
-    }
+    if (action === 'signup') {
+      eventData.signedUp.add(username);
+      eventData.signedOff.delete(username);
+      await interaction.reply({
+        content: `✅ Du hast dich für das Event angemeldet!`,
+        flags: MessageFlags.Ephemeral // Oder direkt: { flags: 64 }
+      });
+    } else if (action === 'signoff') {
+      eventData.signedOff.add(username);
+      eventData.signedUp.delete(username);
+      await interaction.reply({
+        content: `❌ Du hast dich vom Event abgemeldet!`,
+        flags: MessageFlags.Ephemeral // Oder direkt: { flags: 64 }
+      });
+    }
 
-    if (action === 'signup') {
-      eventData.signedUp.add(username);
-      eventData.signedOff.delete(username);
-      // For button interactions, you can reply ephemerally directly
-      await interaction.reply({
-        content: `✅ Du hast dich für das Event angemeldet!`,
-        ephemeral: true
-      });
-    } else if (action === 'signoff') {
-      eventData.signedOff.add(username);
-      eventData.signedUp.delete(username);
-      await interaction.reply({
-        content: `❌ Du hast dich vom Event abgemeldet!`,
-        ephemeral: true
-      });
-    }
-
-    const updatedEmbed = buildEventEmbed(eventId);
-    if (eventData.message) {
-      await eventData.message.edit({ embeds: [updatedEmbed] });
-    }
-  }
+    const updatedEmbed = buildEventEmbed(eventId);
+    if (eventData.message) {
+      await eventData.message.edit({ embeds: [updatedEmbed] });
+    }
+  }
 });
 
 // 🛠 Hilfsfunktion zum Bauen des Embeds
