@@ -100,11 +100,15 @@ client.on('interactionCreate', async (interaction) => {
     const deadlineMinutes = interaction.options.getNumber('frist_in_minuten');
     let deadline;
 
+    // --- START FIX ---
     if (deadlineMinutes !== null && !isNaN(deadlineMinutes)) {
+      // If deadlineMinutes is provided, calculate deadline based on current time
       deadline = new Date(Date.now() + deadlineMinutes * 60 * 1000);
     } else {
+      // If no deadlineMinutes is provided, set deadline to 24 hours before eventDate
       deadline = new Date(eventDate.getTime() - 24 * 60 * 60 * 1000);
     }
+    // --- END FIX ---
 
     if (deadline >= eventDate) {
       return interaction.reply({
@@ -147,35 +151,7 @@ client.on('interactionCreate', async (interaction) => {
     return;
   }
 
-  // Log-Nachricht bei Event-Erstellung
-if (LOG_CHANNEL_ID) {
-  const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
-  if (logChannel) {
-    const deadline = eventData.deadline.toLocaleString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    const diffMs = eventData.date - eventData.deadline;
-    const diffMin = Math.round(diffMs / (1000 * 60));
-    const diffH = Math.floor(diffMin / 60);
-    const diffM = diffMin % 60;
-
-    const fristText = diffH > 0
-      ? `${diffH}h${diffM > 0 ? ` ${diffM}min` : ''}`
-      : `${diffM} Minuten`;
-
-    await logChannel.send(
-      `📝 Event **"${eventData.title}"** wurde erstellt.\n` +
-      `📅 Termin: **${eventData.date.toLocaleString('de-DE')}**\n` +
-      `⏰ **Anmeldefrist:** Bis **${fristText} vorher**, also **${deadline}**`
-    );
-  }
-}
-
+  
 
   // Button Interaktionen
   if (interaction.isButton()) {
