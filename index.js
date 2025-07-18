@@ -147,6 +147,36 @@ client.on('interactionCreate', async (interaction) => {
     return;
   }
 
+  // Log-Nachricht bei Event-Erstellung
+if (LOG_CHANNEL_ID) {
+  const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
+  if (logChannel) {
+    const deadline = eventData.deadline.toLocaleString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const diffMs = eventData.date - eventData.deadline;
+    const diffMin = Math.round(diffMs / (1000 * 60));
+    const diffH = Math.floor(diffMin / 60);
+    const diffM = diffMin % 60;
+
+    const fristText = diffH > 0
+      ? `${diffH}h${diffM > 0 ? ` ${diffM}min` : ''}`
+      : `${diffM} Minuten`;
+
+    await logChannel.send(
+      `📝 Event **"${eventData.title}"** wurde erstellt.\n` +
+      `📅 Termin: **${eventData.date.toLocaleString('de-DE')}**\n` +
+      `⏰ **Anmeldefrist:** Bis **${fristText} vorher**, also **${deadline}**`
+    );
+  }
+}
+
+
   // Button Interaktionen
   if (interaction.isButton()) {
     const [action, eventId] = interaction.customId.split('_');
