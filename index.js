@@ -241,6 +241,32 @@ const server = http.createServer((req, res) => {
   }
 });
 
+const updatedEmbed = buildEventEmbed(eventId);
+
+// Wichtig: Füge hier einen try-catch Block hinzu!
+try {
+  if (eventData.message) {
+    await eventData.message.edit({ embeds: [updatedEmbed] });
+  }
+} catch (error) {
+  if (error.code === 10008) { // DiscordAPIError[10008]: Unknown Message
+    console.warn(`⚠️ Konnte Nachricht ${eventData.message?.id} für Event ${eventId} nicht bearbeiten: Sie wurde wahrscheinlich gelöscht.`);
+    // Informiere den Benutzer, dass die Nachricht nicht gefunden wurde
+    await interaction.followUp({
+      content: '❌ Die ursprüngliche Anwesenheitsabfrage-Nachricht konnte nicht gefunden oder aktualisiert werden (möglicherweise wurde sie gelöscht).',
+      flags: MessageFlags.Ephemeral
+    });
+    // Optional: Entferne das Event aus der Map, wenn die Nachricht weg ist
+    events.delete(eventId);
+  } else {
+    console.error(`❌ Fehler beim Bearbeiten der Nachricht für Event ${eventId}:`, error);
+    await interaction.followUp({
+      content: 'Ein unerwarteter Fehler ist beim Aktualisieren der Anwesenheitsabfrage aufgetreten.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+}
+
 server.listen(PORT, () => {
   console.log(`🌡 Health‑Check‑Server läuft auf Port ${PORT}`);
 });
